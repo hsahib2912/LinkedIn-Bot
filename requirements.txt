@@ -1,0 +1,9 @@
+Python modules:
+	-requests
+	-BeautifulSoup
+	-Selenium
+	-time
+
+Other:
+	-Chrome web driver must be installed : https://chromedriver.storage.googleapis.com/index.html?path=93.0.4577.15/
+	-Make sure you are using compatible version of Chrome with web driver.
