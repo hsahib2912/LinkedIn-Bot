@@ -3,22 +3,45 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 import time
 
-driver = webdriver.Chrome()
 
+driver = webdriver.Chrome(executable_path='/Users/harkishansingh/Desktop/chromedriver')
+ta = 0
+td = 0
+print('Applied','Discarded')
 def login():
     driver.get('https://www.linkedin.com/')
     #Enter your linkedin email below
-    driver.find_element_by_id('session_key').send_keys('Enter-Your-Email-Here')
+    email = 'abc@xyz.com'
+    try:
+        driver.find_element_by_id('session_key').send_keys(email)
+    except:
+        driver.find_element_by_id('email-or-phone').send_keys(email)
     #Enter your linkedin password below
-    driver.find_element_by_id('session_password').send_keys('Enter-Your-Password-Here')
-    driver.find_element_by_class_name('sign-in-form__submit-button').click()
-    
+    password = 'ac611sdaAD'
+    try:
+        driver.find_element_by_id('session_password').send_keys(password)
+    except:
+        driver.find_element_by_id('password').send_keys(password)    
+    try:
+        driver.find_element_by_class_name('join-form__form-body-submit-button').click()
+    except:
+        driver.find_element_by_class_name('sign-in-form__submit-button').click()
+
+def click(r):
+    for k in r:
+        id = k.get('id')
+        try:
+            driver.find_element_by_id(id).click()
+            break
+        except:
+            continue
+
 def open_jobs_portal():
     driver.get('https://www.linkedin.com/jobs')
     bp = BeautifulSoup(driver.page_source,'lxml')
     job_id = bp.find('input',class_ = 'jobs-search-box__text-input jobs-search-box__keyboard-text-input').get('id')
     #Enter your job profile below
-    driver.find_element_by_id(job_id).send_keys('Software Developer')
+    driver.find_element_by_id(job_id).send_keys('Software Engineer')
     loc_id = bp.find_all('input',class_ = 'jobs-search-box__text-input')
     for l in loc_id:
         id = l.get('id')
@@ -31,22 +54,26 @@ def open_jobs_portal():
                 break
             except:
                 continue
+
     driver.find_element_by_xpath('//button[text()="Search"]').click()
+    time.sleep(5)
+
+    driver.find_element_by_xpath('//button[text()="On-site/Remote"]').click()
     time.sleep(3)
-    driver.find_element_by_xpath('//button[text()="Easily Apply"]').click()
+    driver.find_element_by_xpath('//label[@for="workplaceType-2"]').click()
+    time.sleep(1)
+    bp = BeautifulSoup(driver.page_source,'lxml')
+    r = bp.find_all('button',class_ = 'artdeco-button artdeco-button--2 artdeco-button--primary ember-view ml2')
+    click(r)
+    time.sleep(3)
+    driver.find_element_by_xpath('//button[text()="Easy Apply"]').click()
     time.sleep(3)
     driver.find_element_by_xpath('//button[text()="Experience Level"]').click()
     driver.find_element_by_xpath('//label[@for="experience-2"]').click()
     time.sleep(1)
     bp = BeautifulSoup(driver.page_source,'lxml')
     r = bp.find_all('button',class_ = 'artdeco-button artdeco-button--2 artdeco-button--primary ember-view ml2')
-    for k in r:
-        id = k.get('id')
-        try:
-            driver.find_element_by_id(id).click()
-            break
-        except:
-            continue
+    click(r)
 
 def scroll_to_the_bottom():
     last_id = ''
@@ -65,10 +92,13 @@ def scroll_to_the_bottom():
         time.sleep(1)
 
 def discard():
-    print('In discard!')
     driver.find_element_by_class_name('artdeco-button__icon').click()
     try:
-        driver.find_element_by_class_name('artdeco-button__icon').click()
+        bp = BeautifulSoup(driver.page_source,'lxml')
+        time.sleep(1)
+        r = bp.find_all('button',class_ = 'artdeco-modal__confirm-dialog-btn artdeco-button artdeco-button--2 artdeco-button--primary ember-view')
+        time.sleep(1)
+        click(r)
     except:
         print('Not required')
     bp = BeautifulSoup(driver.page_source,'lxml')
@@ -85,6 +115,10 @@ def apply_to_job():
     for i in range(10):
         try:
             bp = BeautifulSoup(driver.page_source,'lxml')
+            try:
+                driver.find_element_by_xpath('//label[@for="follow-company-checkbox"]').click()
+            except:
+                pass
             r = bp.find('button',class_ = 'artdeco-button artdeco-button--2 artdeco-button--primary ember-view')
             id = r.get('id')
             driver.find_element_by_id(id).click()
@@ -94,11 +128,14 @@ def apply_to_job():
     time.sleep(2)
     if(cnt == 10):
         discard()
+        td+=1
     else:
+        ta+=1
         try:
             driver.find_element_by_class_name('artdeco-button__icon').click()
         except:
             print('No notif')
+    
 
 def go_inside_job():
     scroll_to_the_bottom()
